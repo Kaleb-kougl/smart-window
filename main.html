@@ -76,63 +76,60 @@
             cursor: pointer;
         }
 
-        .auto .far {
-            display: none;
-        }
-
-        .auto .fas {
+        .button .fa-lightbulb {
             display: block;
         }
 
-        .auto .far {
-            display: block;
+        .button .fa-robot {
+            display: none;
         }
 
-        .auto .fas {
+        .auto .fa-lightbulb {
             display: none;
+        }
+
+        .auto .fa-robot {
+            display: block;
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>Hello World</h1>
+        <h1 id="intensityDisplay">Hello World</h1>
         <div class="slideContainer">
             <input type="range" min="1" max="100" value="50" class="slider" id="intensity">
         </div>
-        <div class="button" id="autoBrightness">
-            <i class="fas fa-robot toggle"></i>
+        <div class="button auto" id="autoBrightness">
+            <i class="fas fa-robot"></i>
             <i class="far fa-lightbulb"></i>
         </div>
     </div>
 
     <script>
         // let powerBtn = document.getElementById("power-btn");
+        let autoBtn = document.getElementById("autoBrightness");
+        let intensity = document.getElementById("intensity");
         const HTTP = new XMLHttpRequest();
-
-        // let powerFn = function () {
-        //     const URL = "something here";
-        //     HTTP.open("POST", URL);
-        //     HTTP.send();
-
-        //     HTTP.onreadystatechange = function () {
-        //         if (this.readyState == 4 && this.status == 200) {
-        //             console.log(HTTP.responseText);
-        //         } else {
-        //             console.error(HTTP.responseText);
-        //             console.log(`Status: ${HTTP.responseText}`);
-        //         }
-        //     }
-        // };
+        let isAuto = true;
+        document.addEventListener("DOMContentLoaded", function () {
+            HTTP.open("GET", "url with the auto state");
+            HTTP.send();
+            HTTP.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    console.log(HTTP.responseText);
+                    isAuto = this.response.isAuto;
+                    updateAutoBrightness();
+                } else {
+                    console.error(HTTP.responseText);
+                    console.log(`Status: ${HTTP.responseText}`);
+                }
+            }
+        });
 
         function outputUpdate(vol) {
             const URL = "something for intensity here";
-            $('#intensity').text(Math.round(vol / 2.55) + '%');
-
-            if ($('#autobrightness').hasClass('btn-primary')) {
-                $('#autobrightness').trigger('click');
-            }
-
+            // only trigger if not on auto
             HTTP.open("POST", URL);
             HTTP.send({ "brightness": vol });
 
@@ -144,30 +141,15 @@
                     console.log(`Status: ${HTTP.responseText}`);
                 }
             }
-
-            // $.ajax({
-            //   method: "POST",
-            //   url: "index.php",
-            //   data: { brightness: vol}
-            // });
         }
 
         function updateAutoBrightness() {
+            const URL = "something for auto brightness here";
             let autoBtn = document.getElementById("autoBrightness");
             autoBtn.classList.toggle("auto");
 
             // Auto Brightness
             let isAuto = (autoBtn.hasClass('auto')) ? 1 : 0;
-
-            // $.ajax({
-            //     method: "POST",
-            //     url: "index.php",
-            //     data: { autoBrightness: isAuto }
-            // })
-            //     .done(function (msg) {
-            //         $('input[type=range]').val(msg);
-            //         $('#volume').text(Math.round(msg / 2.55) + '%');
-            //     });
 
             HTTP.open("POST", URL);
             HTTP.send({ autoBrightness: isAuto });
@@ -184,10 +166,7 @@
             }
         }
 
-        $('#autobrightness').on('click', updateAutoBrightness);
-
-
-        powerBtn.addEventListener("click", powerFn);
+        autoBtn.addEventListener("click", updateAutoBrightness);
     </script>
 </body>
 
