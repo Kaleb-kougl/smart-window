@@ -96,9 +96,10 @@
 
 <body>
     <div class="container">
-        <h1 id="intensityDisplay">Hello World</h1>
+        <h1 id="intensityDisplay">Currently running automatically</h1>
         <div class="slideContainer">
-            <input type="range" min="1" max="100" value="50" class="slider" id="intensity">
+            <input type="range" min="0" max="100" value="50" class="slider" id="intensity" oninput="showVal(this.value)"
+                onchange="showVal(this.value)" disabled>
         </div>
         <div class="button auto" id="autoBrightness">
             <i class="fas fa-robot"></i>
@@ -110,6 +111,7 @@
         // let powerBtn = document.getElementById("power-btn");
         let autoBtn = document.getElementById("autoBrightness");
         let intensity = document.getElementById("intensity");
+        let intensityDisplay = document.getElementById("intensityDisplay");
         const HTTP = new XMLHttpRequest();
         let isAuto = true;
         document.addEventListener("DOMContentLoaded", function () {
@@ -149,7 +151,9 @@
             autoBtn.classList.toggle("auto");
 
             // Auto Brightness
-            let isAuto = (autoBtn.hasClass('auto')) ? 1 : 0;
+            let isAuto = (autoBtn.classList.contains('auto')) ? 1 : 0;
+            displayAutoChange(isAuto);
+            toggleDisabledElement([intensity]);
 
             HTTP.open("POST", URL);
             HTTP.send({ autoBrightness: isAuto });
@@ -163,6 +167,26 @@
                     console.error(HTTP.responseText);
                     console.log(`Status: ${HTTP.responseText}`);
                 }
+            }
+        }
+
+        function showVal(vol) {
+            intensityDisplay.innerText = vol;
+        }
+
+        function toggleDisabledElement(elems) {
+            console.log(elems);
+            elems.forEach(element => {
+                console.log(element);
+                element.disabled = !element.disabled;
+            });
+        }
+
+        function displayAutoChange(isAuto) {
+            if (isAuto) {
+                intensityDisplay.innerText = "Automatic mode: ON";
+            } else {
+                intensityDisplay.innerText = "Automatic mode: OFF";
             }
         }
 
