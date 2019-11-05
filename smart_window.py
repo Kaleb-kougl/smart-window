@@ -1,6 +1,14 @@
 import RPi.GPIO as GPIO
 import time, json, requests
 
+"""
+TODO: if auto then establish connection to the window. 
+Do the auto stuff
+Then disconnect... 
+
+maybe in the loop I could check if the auto changes... not sure how to deal with concurrency at this point
+"""
+
 GPIO.setmode(GPIO.BCM)
 
 
@@ -25,7 +33,6 @@ confFile = "/var/www/html/window.conf"
 
 # Debug, show output
 debug = True
-
 #### END OF CONFIGURATION ####
 
 
@@ -138,6 +145,9 @@ currentBrightness = 0
 # HIT my server and get current brightness...
 windowDataUrl = "http://myRaspberryPiServer/windowData"
 windowData = requests.get(windowDataUrl, timeout=10).json()
+
+
+# need some sort of way to still update the physical window
 pi = GPIO.PWN(pin, windowData["currentHz"])
 
 

@@ -1,4 +1,10 @@
-from flask import Flask
+from flask import Flask, request
+
+"""
+TODO: add a method that will instatiate the gpio connection to light
+Change the hz
+Then disconnect
+"""
 import json
 
 app = Flask(__name__)
@@ -13,9 +19,11 @@ def getWindowSettings():
     return settings
 
 
-@app.route("/hello")
-def hello():
-    return "Hello World!"
+# Updates the window settings
+def setWindowSettings(settings):
+    f = open(confFile, "w")
+    f.write(json.dumps(settings))
+    f.close()
 
 
 # get the data from config file to show brightness level
@@ -26,27 +34,27 @@ def windowData():
 
 
 # change the state of the window (aka brightness/on/off)
-# This should be a patch method, takes int from 0 to 100
-@app.route("/windowBrightness")
+# int from 0 to 100
+@app.route("/windowBrightness", methods=["PUT"])
 def windowBrightness():
     settings = getWindowSettings()
-    settings["brightness"] = #new brightness
-    '''
-    if updateAuto = true:
-        updateAuto()
-    '''
+    data = request.json
+    settings["brightness"] = data["brightness"]
+    # validation
+    if settings["brightness"] > 100:
+        settings["brightness"] = 100
+    elif settings["brightness"] < 0:
+        settings["brightness"] = 0
+    setWindowSettings(settings)
 
-
-# update settings file
 
 # flip the autoState
 # This should be a put method
-@app.route("/updateAuto")
+@app.route("/updateAuto", methods=["POST"])
 def updateAuto():
-    # Grab data
     settings = getWindowSettings()
-    # flip auto
     settings["auto"] = 1 - settings["auto"]
+    setWindowSettings(settings)
 
 
 if __name__ == "__main__":
