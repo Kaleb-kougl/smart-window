@@ -1,13 +1,7 @@
 import RPi.GPIO as GPIO
 import time, json, requests
 
-"""
-TODO: if auto then establish connection to the window. 
-Do the auto stuff
-Then disconnect... 
-
-maybe in the loop I could check if the auto changes... not sure how to deal with concurrency at this point
-"""
+# THIS IS A CRON JOB
 
 GPIO.setmode(GPIO.BCM)
 
@@ -135,12 +129,7 @@ def getChangeAmt(current, target):
     return round(abs(current - target) / 10) + 1
 
 
-# Set the brightness gradually
-# pi = pigpio.pi()
-# replace with built in pi libarary
-# channel = pin at 0 Hz
-
-# You're going to change the frequency to change the intensity of the light.
+# You're going to change the duty cycle to change the intensity of the light.
 currentBrightness = 0
 # HIT my server and get current brightness...
 windowDataUrl = "http://myRaspberryPiServer/windowData"
@@ -148,17 +137,15 @@ windowData = requests.get(windowDataUrl, timeout=10).json()
 
 
 # need some sort of way to still update the physical window
-pi = GPIO.PWN(pin, windowData["currentHz"])
+pi = GPIO.PWN(pin, 0)
 
 
 targetBrightness = brightness
 
-# I think it may be beneficial to seperate the cron job from the server so they can be run seperate.
-
 # Brightness increasing
 if targetBrightness > currentBrightness:
     while currentBrightness <= targetBrightness:
-        pi.set_PWM_dutycycle(pin, currentBrightness)
+        pi.ChangeDutyCycle(currentBrightness)
 
         amt = getChangeAmt(currentBrightness, targetBrightness)
 
@@ -168,7 +155,7 @@ if targetBrightness > currentBrightness:
 # Brightness decreasing
 elif targetBrightness < currentBrightness:
     while currentBrightness >= targetBrightness:
-        pi.set_PWM_dutycycle(pin, currentBrightness)
+        pi.ChangeDutyCycle(currentBrightness)
 
         amt = getChangeAmt(currentBrightness, targetBrightness)
 

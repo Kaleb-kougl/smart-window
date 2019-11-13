@@ -128,15 +128,16 @@
         let intensity = document.getElementById("intensity");
         let intensityDisplay = document.getElementById("intensityDisplay");
         const HTTP = new XMLHttpRequest();
-        let isAuto = true;
+        let isAuto = 1;
+        const BASE_URL = "piapp/";
         document.addEventListener("DOMContentLoaded", function () {
-            HTTP.open("GET", "url with the auto state");
+            HTTP.open("GET", BASE_URL + "windowData");
             HTTP.send();
             HTTP.onreadystatechange = function () {
                 if (this.readyState == 4 && this.status == 200) {
                     console.log(HTTP.responseText);
                     isAuto = this.response.isAuto;
-                    updateAutoBrightness();
+                    updateAutoBrightness(false);
                 } else {
                     console.error(HTTP.responseText);
                     console.log(`Status: ${HTTP.responseText}`);
@@ -145,42 +146,46 @@
         });
 
         function outputUpdate(vol) {
-            const URL = "something for intensity here";
-            // only trigger if not on auto
-            HTTP.open("POST", URL);
-            HTTP.send({ "brightness": vol });
+            if (!isAuto) {
+                // only trigger if not on auto
+                HTTP.open("POST", BASE_URL + "windowBrightness");
+                HTTP.send({ "brightness": vol });
 
-            HTTP.onreadystatechange = function () {
-                if (this.readyState == 4 && this.status == 200) {
-                    console.log(HTTP.responseText);
-                } else {
-                    console.error(HTTP.responseText);
-                    console.log(`Status: ${HTTP.responseText}`);
+                HTTP.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        console.log(HTTP.responseText);
+                    } else {
+                        console.error(HTTP.responseText);
+                        console.log(`Status: ${HTTP.responseText}`);
+                    }
                 }
             }
         }
 
-        function updateAutoBrightness() {
-            const URL = "something for auto brightness here";
+        function updateAutoBrightness(updateServerSide = true) {
+
             let autoBtn = document.getElementById("autoBrightness");
             autoBtn.classList.toggle("auto");
 
             // Auto Brightness
-            let isAuto = (autoBtn.classList.contains('auto')) ? 1 : 0;
+            /** 
+             *   something with the logic here is wrong
+             */
+            isAuto = (autoBtn.classList.contains('auto')) ? 1 : 0;
             displayAutoChange(isAuto);
             toggleDisabledElement([intensity]);
-
-            HTTP.open("POST", URL);
-            HTTP.send({ autoBrightness: isAuto });
-
-            HTTP.onreadystatechange = function () {
-                if (this.readyState == 4 && this.status == 200) {
-                    console.log(HTTP.responseText);
-                    document.getElementById("intensity").value = this.response;
-                    document.getElementById("intensityDisplay").innerText = `${this.response}%`;
-                } else {
-                    console.error(HTTP.responseText);
-                    console.log(`Status: ${HTTP.responseText}`);
+            if (updateServerSide) {
+                HTTP.open("POST", BASE_URL + "updateAuto");
+                HTTP.send({ autoBrightness: isAuto });
+                HTTP.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        console.log(HTTP.responseText);
+                        document.getElementById("intensity").value = this.response;
+                        document.getElementById("intensityDisplay").innerText = `${this.response}%`;
+                    } else {
+                        console.error(HTTP.responseText);
+                        console.log(`Status: ${HTTP.responseText}`);
+                    }
                 }
             }
         }
