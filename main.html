@@ -149,7 +149,7 @@
         function outputUpdate(vol) {
             if (!isAuto) {
                 HTTP.open("PUT", BASE_URL + "windowBrightness");
-                HTTP.send({ "brightness": vol });
+                HTTP.send(JSON.stringify({ "brightness": vol }));
 
                 HTTP.onreadystatechange = function () {
                     if (this.readyState == 4 && this.status == 200) {
@@ -176,7 +176,7 @@
             toggleDisabledElement([intensity]);
             if (updateServerSide) {
                 HTTP.open("POST", BASE_URL + "updateAuto");
-                HTTP.send({ autoBrightness: isAuto });
+                HTTP.send(JSON.stringify({ "autoBrightness": isAuto }));
                 HTTP.onreadystatechange = function () {
                     if (this.readyState == 4 && this.status == 200) {
                         console.log(HTTP.responseText);

@@ -1,6 +1,13 @@
 from flask import Flask, request, Response
+from datetime import datetime
 import RPi.GPIO as GPIO
-import json, time
+import json, time, logging, logging.config, yaml
+logging.config.dictConfig(yaml.load(open('logging.conf')))
+
+logfile    = logging.getLogger('file')
+logconsole = logging.getLogger('console')
+logfile.debug("Debug FILE")
+logconsole.debug("Debug CONSOLE")
 
 # THIS IS AN HTTP SERVER
 
@@ -11,6 +18,7 @@ GPIO.setup(12, GPIO.OUT)
 app = Flask(__name__)
 
 confFile = "/var/www/html/window.conf"
+errorFile = "/var/www/html/errorsReport.txt"
 
 # Returns a JSON of the window settings.
 def getWindowSettings():
@@ -20,6 +28,11 @@ def getWindowSettings():
         settings = json.loads(f.read())
     except IOError as error:
         print(error)
+        fe = open(errorFile, "w")
+        now = datetime.now()
+        timestamp = datetime.timestamp(now)
+        fe.write(error + timestamp)
+        fe.close()
     finally:
         f.close()
         return settings
@@ -33,6 +46,11 @@ def setWindowSettings(settings):
         f.write(json.dumps(settings))
     except IOError as error:
         print(error)
+        fe = open(errorFile, "w")
+        now = datetime.now()
+        timestamp = datetime.timestamp(now)
+        fe.write(error + timestamp)
+        fe.close()
     finally:
         f.close()
 
