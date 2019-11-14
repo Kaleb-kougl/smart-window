@@ -123,13 +123,14 @@
     </div>
 
     <script>
-        // let powerBtn = document.getElementById("power-btn");
+        const BASE_URL = "piapp/";
+        const HTTP = new XMLHttpRequest();
         let autoBtn = document.getElementById("autoBrightness");
         let intensity = document.getElementById("intensity");
-        let intensityDisplay = document.getElementById("intensityDisplay");
-        const HTTP = new XMLHttpRequest();
+        let intensityDisplay = document.getElementById("intensityDisplay");        
         let isAuto = 1;
-        const BASE_URL = "piapp/";
+        
+
         document.addEventListener("DOMContentLoaded", function () {
             HTTP.open("GET", BASE_URL + "windowData");
             HTTP.send();
@@ -147,8 +148,7 @@
 
         function outputUpdate(vol) {
             if (!isAuto) {
-                // only trigger if not on auto
-                HTTP.open("POST", BASE_URL + "windowBrightness");
+                HTTP.open("PUT", BASE_URL + "windowBrightness");
                 HTTP.send({ "brightness": vol });
 
                 HTTP.onreadystatechange = function () {
